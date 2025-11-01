@@ -198,15 +198,27 @@ pdfx document.pdf --standard -o results.json
 pdf_extractor/
  ├── main.py                      # Entry point with CLI
  ├── setup.py                     # Package configuration
+ ├── demo_streamlit.py            # Streamlit web demo application
+ ├── sample-pages_extracted.json  # Sample output file
  ├── extractor/
  │    ├── __init__.py
- │    ├── pdf_text_extractor.py   # PDF text & table extraction
- │    ├── construction_parser.py  # Construction-specific parsing
- │    ├── parser_rules.py         # Regex patterns & heuristics
- │    ├── llm_parser.py           # LLM integration (GPT/Claude)
- │    └── utils.py                # Helper functions
+ │    ├── extractors/
+ │    │    └── pdf_text_extractor.py  # PDF text & table extraction
+ │    ├── parsers/
+ │    │    ├── construction.py       # Construction-specific parsing
+ │    │    ├── standard.py           # Standard entity extraction
+ │    │    └── llm.py                # LLM integration (GPT/Claude)
+ │    ├── services/
+ │    │    └── extraction_service.py # Extraction orchestration
+ │    ├── models/
+ │    │    ├── base.py              # Base Pydantic models
+ │    │    ├── construction.py      # Construction models
+ │    │    └── standard.py          # Standard models
+ │    └── utils/
+ │         └── helpers.py           # Helper functions
  ├── requirements.txt
- └── README.md
+ ├── README.md
+ └── STRUCTURE.md                  # Detailed architecture docs
 ```
 
 ## ⚙️ Configuration
@@ -243,6 +255,42 @@ export ANTHROPIC_API_KEY=your_anthropic_api_key
 - **Cost Estimating**: Gather fixture and material specifications for pricing
 - **Submittal Review**: Parse product data from submittal packages
 - **Schedule Creation**: Extract items from material schedules into structured format
+
+## 🎬 Interactive Demo (Streamlit)
+
+Try the web-based interactive demo:
+
+```bash
+# Install streamlit if not already installed
+pip install streamlit
+
+# Run the demo app
+streamlit run demo_streamlit.py
+```
+
+The demo provides:
+- **Interactive UI**: Upload PDFs and see results instantly
+- **Visual Summary**: Metrics and statistics dashboard
+- **Item Browser**: Search and filter extracted items
+- **JSON Viewer**: View raw output
+- **Download**: Export results as JSON
+
+Access the demo at `http://localhost:8501` after running the command.
+
+## 📦 Sample Files
+
+### Sample Output
+A sample output file is included: `sample-pages_extracted.json`
+
+This demonstrates the expected structure of extracted data from a construction PDF.
+
+### Sample Input
+For testing, you can use any construction PDF (plumbing submittal, work package, etc.). The tool works best with:
+- PDFs containing tables with item lists
+- Material schedules and cut sheets
+- Product specifications with model numbers and quantities
+
+**Note**: Sample PDFs are excluded from the repository (see `.gitignore`). Add your own test PDFs to test the tool.
 
 ## 🤝 Contributing
 
