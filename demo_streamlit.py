@@ -68,7 +68,8 @@ def main():
     uploaded_file = st.file_uploader(
         "Upload a PDF file",
         type=["pdf"],
-        help="Upload a construction PDF (plumbing submittal, work package, etc.)"
+        help="Upload a construction PDF (plumbing submittal, work package, etc.)",
+        accept_multiple_files=False
     )
     
     if uploaded_file is not None:

@@ -2,6 +2,11 @@
 
 A specialized Python tool for extracting structured data from construction PDFs (plumbing submittals, work packages, etc.). Extracts items, quantities, model numbers, dimensions, mounting types, and page references for construction takeoff and estimating.
 
+## 🎯 Try It Now
+
+- **🌐 Online Demo**: [https://pdf-extractr.streamlit.app/](https://pdf-extractr.streamlit.app/) - No installation required!
+- **💻 Command Line**: Install with `pip install git+https://github.com/yourusername/pdf_extractor.git` and use the `pdfx` command
+
 ## 🎯 Purpose
 
 This tool is designed for **construction PDF takeoff**, specifically to extract structured data from:
@@ -27,6 +32,18 @@ This tool is designed for **construction PDF takeoff**, specifically to extract 
 
 ## 🚀 Quick Start
 
+### Option 1: Try Online (No Installation Required) 🌐
+
+**Use the web-based demo directly in your browser:**
+
+👉 **[https://pdf-extractr.streamlit.app/](https://pdf-extractr.streamlit.app/)**
+
+Upload your PDF and get results instantly - no installation needed!
+
+### Option 2: Install Command Line Tool
+
+Install the `pdfx` command-line tool:
+
 ```bash
 # Create and activate virtual environment (recommended)
 python3 -m venv venv
@@ -37,6 +54,18 @@ pip install git+https://github.com/yourusername/pdf_extractor.git
 
 # Extract construction data from a plumbing submittal PDF
 pdfx plumbing_submittal.pdf --construction
+```
+
+**Or install directly:**
+```bash
+pip install git+https://github.com/yourusername/pdf_extractor.git
+```
+
+After installation, use the `pdfx` command from anywhere:
+```bash
+pdfx your_pdf.pdf --construction
+pdfx your_pdf.pdf --standard
+pdfx your_pdf.pdf --construction --llm openai
 ```
 
 ## 📦 Installation
@@ -256,9 +285,25 @@ export ANTHROPIC_API_KEY=your_anthropic_api_key
 - **Submittal Review**: Parse product data from submittal packages
 - **Schedule Creation**: Extract items from material schedules into structured format
 
-## 🎬 Interactive Demo (Streamlit)
+## 🎬 Interactive Demo
 
-Try the web-based interactive demo:
+### 🌐 Online Demo (Recommended)
+
+**Try it instantly in your browser - no installation needed:**
+
+🔗 **[https://pdf-extractr.streamlit.app/](https://pdf-extractr.streamlit.app/)**
+
+Features:
+- ✅ **No installation required** - works directly in your browser
+- ✅ **Interactive UI**: Upload PDFs and see results instantly
+- ✅ **Visual Summary**: Metrics and statistics dashboard
+- ✅ **Item Browser**: Search and filter extracted items
+- ✅ **JSON Viewer**: View raw output
+- ✅ **Download**: Export results as JSON
+
+### 💻 Local Demo
+
+To run the demo locally on your machine:
 
 ```bash
 # Install streamlit if not already installed
@@ -268,14 +313,7 @@ pip install streamlit
 streamlit run demo_streamlit.py
 ```
 
-The demo provides:
-- **Interactive UI**: Upload PDFs and see results instantly
-- **Visual Summary**: Metrics and statistics dashboard
-- **Item Browser**: Search and filter extracted items
-- **JSON Viewer**: View raw output
-- **Download**: Export results as JSON
-
-Access the demo at `http://localhost:8501` after running the command.
+Access the local demo at `http://localhost:8501` after running the command.
 
 ## 📦 Sample Files
 
