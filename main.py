@@ -5,6 +5,19 @@ Simple tool with two parameters: input (mandatory) and output (optional).
 Supports construction PDF takeoff extraction mode.
 Uses OOP principles with service classes and strategy pattern.
 """
+# CRITICAL: Force unbuffered output BEFORE any other imports
+# Note: The pdfx wrapper should use python3 -u, but we also set it here as backup
+import sys
+import os
+
+# Set environment variable immediately (affects subprocesses and some libraries)
+os.environ['PYTHONUNBUFFERED'] = '1'
+
+# DO NOT replace stdout/stderr - this breaks spinner output!
+# The python3 -u flag in the wrapper script handles unbuffering at interpreter level.
+# Replacing stdout with buffered streams causes \r-based spinner updates to be buffered.
+
+# Now import everything else
 import argparse
 from pathlib import Path
 from extractor.services import ExtractionServiceFactory
@@ -75,15 +88,34 @@ Examples:
     use_construction_mode = not args.standard
     
     # Print processing header
-    print(f"📄 Processing: {args.input}")
+    print(f"📄 Processing: {args.input}", flush=True)
     mode_str = " (Construction Takeoff Mode)" if use_construction_mode else " (Standard Mode)"
-    print(f"🔄 Step 1/4: Extracting text and tables from PDF{mode_str}...")
+    print(f"🔄 Step 1/4: Extracting text and tables from PDF{mode_str}...", flush=True)
+    
+    # Check for LLM flag and API keys
+    if args.llm:
+        import os
+        if args.llm == 'openai':
+            api_key = os.getenv('OPENAI_API_KEY')
+            if not api_key:
+                print(f"\n⚠️  Error: --llm {args.llm} requires OPENAI_API_KEY environment variable")
+                print(f"   Set it with: export OPENAI_API_KEY=your_key_here")
+                print(f"   Continuing without LLM enhancement...")
+                args.llm = None  # Disable LLM if no key
+        elif args.llm == 'claude':
+            api_key = os.getenv('ANTHROPIC_API_KEY')
+            if not api_key:
+                print(f"\n⚠️  Error: --llm {args.llm} requires ANTHROPIC_API_KEY environment variable")
+                print(f"   Set it with: export ANTHROPIC_API_KEY=your_key_here")
+                print(f"   Continuing without LLM enhancement...")
+                args.llm = None  # Disable LLM if no key
     
     # Use factory to create appropriate extraction service
+    # Note: For image-based PDFs, use --llm flag with vision models instead of OCR (platform-independent)
     if use_construction_mode:
         service = ExtractionServiceFactory.create_construction_service(
-            use_ocr=False,
-            llm_type=args.llm
+            use_ocr=False,  # OCR disabled by default (requires system dependencies)
+            llm_type=args.llm  # Use --llm flag for vision models (platform-independent solution)
         )
     else:
         service = ExtractionServiceFactory.create_standard_service(use_ocr=False)
@@ -94,9 +126,12 @@ Examples:
     # Step 2 and 3 are handled inside the service/strategy
     # Just show that we're moving to final step
     
-    # Save to JSON
+    # Save to JSON (remove internal flags first)
     print("🔄 Step 4/4: Saving results...", end="", flush=True)
-    save_json(output_data, args.output)
+    output_for_save = output_data.copy()
+    output_for_save.pop('_llm_used', None)  # Remove internal flag before saving
+    output_for_save.pop('_llm_requested', None)  # Remove internal flag before saving
+    save_json(output_for_save, args.output)
     print(f" ✓", flush=True)
     print(f"\n✅ Done! Results saved to: {args.output}")
     
@@ -111,6 +146,11 @@ Examples:
         print(f"  - Items with model numbers: {summary.get('items_with_model_numbers', 0)}")
         print(f"  - Tables extracted: {summary.get('tables_found', 0)}")
         print(f"  - Pages processed: {summary.get('pages_processed', 0)}")
+        # Show LLM status based on usage
+        if output_data.get('_llm_used'):
+            print(f"  - LLM Enhancement: ✅ Enabled")
+        elif output_data.get('_llm_requested'):
+            print(f"  - LLM Enhancement: ❌ Failed (using regex-only)")
     else:
         entities = summary.get('entities', {})
         if entities:

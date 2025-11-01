@@ -81,15 +81,41 @@ class ConstructionExtractionStrategy(ExtractionStrategy):
         print("🔄 Step 2/4: Extracting construction items and quantities... ✓", flush=True)
         
         # Use LLM for hybrid enhancement if available (merges regex + LLM results)
+        llm_success = False
+        llm_was_requested = self.llm_parser is not None
         if self.llm_parser:
             regex_count = len(all_items)
-            print(f"🔄 Step 3/4: Using LLM for hybrid enhancement (regex + LLM)...", end="", flush=True)
-            all_items = self._enhance_with_llm(all_items, pages_data)
-            llm_added = len(all_items) - regex_count
-            if llm_added > 0:
-                print(f" ✓ (+{llm_added} items from LLM)", flush=True)
-            else:
-                print(" ✓", flush=True)
+            print(f"🔄 Step 3/4: Attempting LLM enhancement...", end="", flush=True)
+            try:
+                enhanced_items, llm_actually_worked = self._enhance_with_llm(all_items, pages_data)
+                if llm_actually_worked:
+                    llm_success = True
+                    all_items = enhanced_items
+                    llm_added = len(all_items) - regex_count
+                    if llm_added > 0:
+                        print(f"\r🔄 Step 3/4: LLM enhancement successful! ✓ (+{llm_added} additional items)", flush=True)
+                    else:
+                        print(f"\r🔄 Step 3/4: LLM enhancement successful! ✓ (merged with regex)", flush=True)
+                else:
+                    # LLM was called but returned no items or didn't enhance anything
+                    llm_success = False
+                    print(f"\r🔄 Step 3/4: LLM returned no items - processing without LLM... ✓", flush=True)
+            except Exception as e:
+                # Show clear error message if LLM was requested but failed
+                error_msg = str(e)
+                # Extract meaningful error message
+                if "quota" in error_msg.lower() or "429" in error_msg:
+                    error_msg = "quota exceeded"
+                elif "model_not_found" in error_msg or "404" in error_msg:
+                    error_msg = "model not available"
+                elif "api_key" in error_msg.lower() or "401" in error_msg:
+                    error_msg = "invalid API key"
+                else:
+                    # Get first meaningful part of error
+                    error_msg = error_msg[:50] if len(error_msg) > 50 else error_msg
+                
+                llm_success = False
+                print(f"\r🔄 Step 3/4: LLM enhancement failed ({error_msg}) - processing without LLM... ✓", flush=True)
         else:
             print("🔄 Step 3/4: Summarizing extracted data...", end="", flush=True)
         
@@ -116,6 +142,12 @@ class ConstructionExtractionStrategy(ExtractionStrategy):
         # Remove source_pdf from output
         output = result.model_dump(mode='json')
         output.pop('source_pdf', None)
+        
+        # Add LLM usage flag (will be removed before saving to JSON)
+        # Only mark as used if it actually succeeded
+        output['_llm_used'] = llm_success
+        output['_llm_requested'] = llm_was_requested
+        
         return output
     
     def _validate_items(self, items: List[Dict[str, Any]]) -> List[ExtractedItem]:
@@ -185,10 +217,15 @@ class ConstructionExtractionStrategy(ExtractionStrategy):
         self,
         items: List[Dict[str, Any]],
         pages_data: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+    ) -> tuple:
         """
         Hybrid approach: Enhance regex-extracted items with LLM results.
         Merges both sources intelligently rather than replacing.
+        
+        Returns:
+            tuple: (merged_items, llm_actually_worked)
+                - merged_items: The merged list of items
+                - llm_actually_worked: True if LLM returned items and enhanced the results
         """
         # Combine text from pages
         from extractor.utils.helpers import combine_pages_text
@@ -199,6 +236,7 @@ class ConstructionExtractionStrategy(ExtractionStrategy):
         llm_items = []
         
         try:
+            # More flexible schema to match actual requirements
             schema = {
                 "type": "object",
                 "properties": {
@@ -207,27 +245,75 @@ class ConstructionExtractionStrategy(ExtractionStrategy):
                         "items": {
                             "type": "object",
                             "properties": {
-                                "fixture_type": {"type": "string"},
-                                "quantity": {"type": "integer"},
-                                "model_number": {"type": "string"},
-                                "dimensions": {"type": "string"},
-                                "mounting_type": {"type": "string"},
-                                "spec_reference": {"type": "string"},
-                                "page_number": {"type": "integer"}
+                                "fixture_type": {
+                                    "type": "string",
+                                    "description": "Item/fixture type (e.g., 'Valve Package', 'Circulating Pump', 'Eye Wash Station')"
+                                },
+                                "quantity": {
+                                    "type": ["integer", "string"],
+                                    "description": "Quantity - can be integer (31) or string reference ('31.1, 31')"
+                                },
+                                "model_number": {
+                                    "type": "string",
+                                    "description": "Model number, spec reference, or catalog number (e.g., 'OM-141', 'HUH-13', 'BOILER CIRCULATING PUMP')"
+                                },
+                                "dimensions": {
+                                    "type": "string",
+                                    "description": "Associated dimensions if any (e.g., '1 1/2\"ø', '2 x 4 x 6')"
+                                },
+                                "mounting_type": {
+                                    "type": "string",
+                                    "description": "Mounting type if stated (e.g., 'wall-mounted', 'floor-mounted')"
+                                },
+                                "spec_reference": {
+                                    "type": "string",
+                                    "description": "Specification reference or page reference if available"
+                                },
+                                "page_number": {
+                                    "type": ["integer", "string"],
+                                    "description": "Page reference if mentioned in text"
+                                }
                             }
                         }
                     }
-                }
+                },
+                "required": ["items"]
             }
-            enhanced = self.llm_parser.parse(full_text[:8000], schema)
-            if enhanced.get('items'):
+            # Send more text to LLM (increase from 8000 to allow better context)
+            # LLMs can handle more context now
+            text_for_llm = full_text[:16000] if len(full_text) > 16000 else full_text
+            enhanced = self.llm_parser.parse(text_for_llm, schema)
+            
+            if enhanced.get('items') and len(enhanced['items']) > 0:
                 llm_items = enhanced['items']
-        except Exception as e:
-            # If LLM fails, return original regex items
-            return regex_items
+            else:
+                # LLM returned empty or no items
+                return regex_items, False
+        except Exception:
+            # Exception occurred - LLM failed
+            return regex_items, False
         
         # Merge regex and LLM results intelligently
-        return self._merge_regex_and_llm_items(regex_items, llm_items)
+        merged_items = self._merge_regex_and_llm_items(regex_items, llm_items)
+        
+        # Check if merge actually changed anything
+        # Compare before and after - if items are the same, LLM didn't help
+        if len(merged_items) == len(regex_items):
+            # Check if any items were actually enhanced (have more fields filled)
+            items_changed = False
+            for merged, original in zip(merged_items, regex_items):
+                # Count non-null fields
+                merged_fields = sum(1 for v in merged.values() if v is not None and v != '')
+                original_fields = sum(1 for v in original.values() if v is not None and v != '')
+                if merged_fields > original_fields:
+                    items_changed = True
+                    break
+            
+            # If no items added and no items enhanced, LLM didn't work
+            if not items_changed:
+                return regex_items, False
+        
+        return merged_items, True
     
     def _merge_regex_and_llm_items(
         self,
@@ -485,7 +571,7 @@ class ExtractionServiceFactory:
     
     @staticmethod
     def create_construction_service(
-        use_ocr: bool = False,
+        use_ocr: bool = False,  # Optional - requires system dependencies (poppler). Use LLM with vision instead for platform independence
         llm_type: Optional[str] = None
     ) -> ExtractionService:
         """
@@ -537,14 +623,30 @@ class ExtractionServiceFactory:
         if llm_type == 'openai':
             from extractor.parsers.llm import OpenAIParser
             api_key = os.getenv('OPENAI_API_KEY')
-            if api_key:
-                return OpenAIParser(api_key=api_key)
+            if not api_key:
+                return None
+            try:
+                # Try gpt-4o-mini first (cheaper, widely available)
+                # Fallback to gpt-3.5-turbo if needed
+                try:
+                    return OpenAIParser(api_key=api_key, model="gpt-4o-mini")
+                except Exception:
+                    # Fallback to gpt-3.5-turbo if gpt-4o-mini fails
+                    return OpenAIParser(api_key=api_key, model="gpt-3.5-turbo")
+            except Exception:
+                # Silently fail if initialization fails
+                return None
         
         elif llm_type == 'claude':
             from extractor.parsers.llm import ClaudeParser
             api_key = os.getenv('ANTHROPIC_API_KEY')
-            if api_key:
+            if not api_key:
+                return None
+            try:
                 return ClaudeParser(api_key=api_key)
+            except Exception:
+                # Silently fail if initialization fails
+                return None
         
         return None
 

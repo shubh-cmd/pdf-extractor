@@ -7,10 +7,62 @@
     "avg_chars_per_page": 1423.5,
     "avg_words_per_page": 298.5
   },
-  "total_items_found": 3,
+  "total_items_found": 16,
   "items": [
     {
-      "fixture_type": "VALVE",
+      "fixture_type": "Paint Booth",
+      "quantity": null,
+      "model_number": "OM-142",
+      "dimensions": null,
+      "mounting_type": null,
+      "spec_reference": null,
+      "page_number": 2,
+      "table_number": null,
+      "row_number": null,
+      "raw_text": "PAINT BOOTH",
+      "line_number": 5
+    },
+    {
+      "fixture_type": "Body Repair",
+      "quantity": null,
+      "model_number": "OM-141",
+      "dimensions": null,
+      "mounting_type": null,
+      "spec_reference": null,
+      "page_number": 2,
+      "table_number": null,
+      "row_number": null,
+      "raw_text": "BODY REPAIR",
+      "line_number": 8
+    },
+    {
+      "fixture_type": "Body Shop",
+      "quantity": null,
+      "model_number": null,
+      "dimensions": null,
+      "mounting_type": null,
+      "spec_reference": null,
+      "page_number": 2,
+      "table_number": null,
+      "row_number": null,
+      "raw_text": "BODY SHOP",
+      "line_number": 15
+    },
+    {
+      "fixture_type": "Body Shop",
+      "quantity": "31.1",
+      "model_number": "OM-137",
+      "dimensions": "2 x 8 x 1/8",
+      "mounting_type": null,
+      "spec_reference": "31.1",
+      "page_number": 2,
+      "table_number": null,
+      "row_number": null,
+      "raw_text": "RECYCLING STORAGE (BODY SHOP)",
+      "line_number": 16
+    },
+    {
+      "fixture_type": "Valve",
       "quantity": null,
       "model_number": null,
       "dimensions": null,
@@ -23,10 +75,23 @@
       "line_number": 99
     },
     {
-      "fixture_type": "VALVE",
+      "fixture_type": "Package",
+      "quantity": 1,
+      "model_number": null,
+      "dimensions": "5 x 3 x 1/4",
+      "mounting_type": null,
+      "spec_reference": null,
+      "page_number": 2,
+      "table_number": null,
+      "row_number": null,
+      "raw_text": "PACKAGE",
+      "line_number": 100
+    },
+    {
+      "fixture_type": "Valve",
       "quantity": null,
       "model_number": null,
-      "dimensions": null,
+      "dimensions": "1 1/2\"ø",
       "mounting_type": null,
       "spec_reference": null,
       "page_number": 2,
@@ -36,7 +101,72 @@
       "line_number": 111
     },
     {
-      "fixture_type": "VALVE",
+      "fixture_type": "Package",
+      "quantity": 6,
+      "model_number": "MAU-11",
+      "dimensions": "25' -1 5/8\"",
+      "mounting_type": null,
+      "spec_reference": null,
+      "page_number": 2,
+      "table_number": null,
+      "row_number": null,
+      "raw_text": "PACKAGE BE= 25' -1 5/8\"",
+      "line_number": 112
+    },
+    {
+      "fixture_type": "Valve Package",
+      "quantity": 3,
+      "model_number": null,
+      "dimensions": "7 x 8",
+      "mounting_type": null,
+      "spec_reference": null,
+      "page_number": 2,
+      "table_number": null,
+      "row_number": null,
+      "raw_text": "VALVE PACKAGE",
+      "line_number": 135
+    },
+    {
+      "fixture_type": "Body Repair",
+      "quantity": null,
+      "model_number": "OM-141",
+      "dimensions": null,
+      "mounting_type": null,
+      "spec_reference": null,
+      "page_number": 2,
+      "table_number": null,
+      "row_number": null,
+      "raw_text": "BODY REPAIR",
+      "line_number": 146
+    },
+    {
+      "fixture_type": "Cooling Tower",
+      "quantity": null,
+      "model_number": null,
+      "dimensions": "1 x 9",
+      "mounting_type": null,
+      "spec_reference": null,
+      "page_number": 2,
+      "table_number": null,
+      "row_number": null,
+      "raw_text": "COOLING TOWER",
+      "line_number": 153
+    },
+    {
+      "fixture_type": "Body Shop",
+      "quantity": 7,
+      "model_number": "OM-137",
+      "dimensions": "19 x 6 x 1/8",
+      "mounting_type": null,
+      "spec_reference": null,
+      "page_number": 2,
+      "table_number": null,
+      "row_number": null,
+      "raw_text": "BODY SHOP",
+      "line_number": 157
+    },
+    {
+      "fixture_type": "B Boiler",
       "quantity": null,
       "model_number": null,
       "dimensions": null,
@@ -45,18 +175,57 @@
       "page_number": 2,
       "table_number": null,
       "row_number": null,
-      "raw_text": "VALVE PACKAGE",
-      "line_number": 135
+      "raw_text": "B BOILER",
+      "line_number": 169
+    },
+    {
+      "fixture_type": "Et Expansion Tank",
+      "quantity": null,
+      "model_number": null,
+      "dimensions": null,
+      "mounting_type": null,
+      "spec_reference": null,
+      "page_number": 2,
+      "table_number": null,
+      "row_number": null,
+      "raw_text": "ET EXPANSION TANK",
+      "line_number": 180
+    },
+    {
+      "fixture_type": "Fcu Fan Coil Unit",
+      "quantity": null,
+      "model_number": null,
+      "dimensions": null,
+      "mounting_type": null,
+      "spec_reference": null,
+      "page_number": 2,
+      "table_number": null,
+      "row_number": null,
+      "raw_text": "FCU FAN COIL UNIT",
+      "line_number": 181
+    },
+    {
+      "fixture_type": "Mau Makeup Air Unit",
+      "quantity": 63,
+      "model_number": "L01",
+      "dimensions": "1 x 8 x 5/8",
+      "mounting_type": null,
+      "spec_reference": "DRAWING S",
+      "page_number": 2,
+      "table_number": null,
+      "row_number": null,
+      "raw_text": "MAU MAKEUP AIR UNIT",
+      "line_number": 186
     }
   ],
   "summary": {
-    "total_items": 3,
-    "items_with_quantities": 0,
-    "items_with_model_numbers": 0,
-    "items_with_dimensions": 0,
+    "total_items": 16,
+    "items_with_quantities": 6,
+    "items_with_model_numbers": 7,
+    "items_with_dimensions": 8,
     "items_with_mounting_type": 0,
     "pages_processed": 2,
-    "tables_found": 5
+    "tables_found": 0
   },
   "pages": [
     {
@@ -67,7 +236,7 @@
     {
       "page_num": 2,
       "text_preview": "AA BB CC DD D.1 EE FF GG HH H.0 HH..11 JJ\n3355 3355\nEXIT PATH\nOM-140D\nPAINT BOOTH\nOM-142\n3344 3344\nBODY REPAIR\nBC 1-41\nOM-141\n3333 3333\nEXIT PATH\nOM-140C\nPAINT MIX / TOOL CRIB\nBODY SHOP\nRECYCLING STOR...",
-      "has_tables": true
+      "has_tables": false
     }
   ]
 }

@@ -118,10 +118,27 @@ pip install git+https://github.com/yourusername/pdf_extractor.git
 
 ⚠️ **Note**: Using a virtual environment is strongly recommended to avoid conflicts with other Python packages.
 
-For OCR support (optional, for scanned PDFs):
-- macOS: `brew install tesseract`
-- Ubuntu: `sudo apt-get install tesseract-ocr`
-- Windows: Download from [GitHub](https://github.com/UB-Mannheim/tesseract/wiki)
+**For Image-Based PDFs (Recommended - Platform Independent):**
+
+Use the `--llm` flag with vision-capable models (GPT-4 Vision or Claude 3 Vision). These can extract data directly from PDF images without requiring any system dependencies:
+- ✅ No system-level installations needed
+- ✅ Works on all platforms (macOS, Linux, Windows)
+- ✅ Better accuracy for complex layouts and diagrams
+- ✅ Handles tables, diagrams, and structured data better than OCR
+
+**Example:**
+```bash
+export OPENAI_API_KEY=your_key_here
+pdfx image-based-pdf.pdf --construction --llm openai
+```
+
+**For OCR Support (Optional - Requires System Dependencies):**
+
+If you prefer OCR instead of LLM vision models, you'll need:
+- **Tesseract OCR**: `brew install tesseract` (macOS) or `sudo apt-get install tesseract-ocr` (Linux)
+- **Poppler**: `brew install poppler` (macOS) or `sudo apt-get install poppler-utils` (Linux)
+
+**Note:** OCR requires system dependencies and is platform-dependent. LLM vision models are recommended for cross-platform compatibility.
 
 ## 📖 Usage
 
@@ -146,11 +163,12 @@ pdfx plumbing_submittal.pdf --construction
 # With custom output file
 pdfx plumbing_submittal.pdf --construction -o takeoff_results.json
 
-# With LLM enhancement (requires API key)
+# With LLM enhancement (recommended for image-based PDFs - platform independent!)
+# LLM vision models can extract from images directly without needing OCR dependencies
 export OPENAI_API_KEY=your_key_here
 pdfx plumbing_submittal.pdf --construction --llm openai
 
-# Or use Claude
+# Or use Claude (also supports vision)
 export ANTHROPIC_API_KEY=your_key_here
 pdfx plumbing_submittal.pdf --construction --llm claude
 ```

@@ -18,13 +18,14 @@ class LLMParserBase(ABC):
 class OpenAIParser(LLMParserBase):
     """Parse PDF text using OpenAI GPT models."""
     
-    def __init__(self, api_key: str, model: str = "gpt-4"):
+    def __init__(self, api_key: str, model: str = "gpt-4o-mini"):
         """
         Initialize OpenAI parser.
         
         Args:
             api_key: OpenAI API key
-            model: Model name to use
+            model: Model name to use (default: gpt-4o-mini - cheaper and widely available)
+                   Options: gpt-4o-mini, gpt-4o, gpt-3.5-turbo, gpt-4-turbo
         """
         try:
             import openai
@@ -44,20 +45,38 @@ class OpenAIParser(LLMParserBase):
         Returns:
             Parsed data matching the schema
         """
-        prompt = f"""Extract structured data from the following text according to the provided schema.
+        prompt = f"""You are an expert at extracting structured data from construction PDF documents (plumbing submittals, mechanical plans, work packages).
 
-Text:
+Your task is to extract construction items, fixtures, and equipment with:
+- Item/Fixture Types (e.g., "Valve Package", "Circulating Pump", "Eye Wash Station", "Body Repair Shop Fixtures")
+- Quantities (can be integers like 31 or references like "31.1, 31")
+- Model Numbers / Spec References (e.g., "OM-141", "HUH-13", "30.1", "BOILER CIRCULATING PUMP")
+- Page References (if available in text)
+- Associated Dimensions (e.g., "1 1/2\"ø", "2 x 4 x 6")
+- Mounting Type (e.g., "wall-mounted", "floor-mounted")
+
+IMPORTANT INSTRUCTIONS:
+1. Extract ALL construction items, equipment, and fixtures mentioned
+2. Look for items in tables, lists, and free text
+3. Handle abbreviations (e.g., "HHWS" = Heating Hot Water Supply, "CWR" = Cooling Water Return)
+4. Extract quantities even if formatted as references (like "31.1, 31")
+5. Model numbers can be in various formats: OM-141, HUH-13, 30.1, or descriptive like "BOILER CIRCULATING PUMP"
+6. If quantity is a reference like "31.1, 31", keep it as string
+7. Be thorough - extract items from tables, notes, and descriptions
+8. Include context from surrounding text to identify complete item descriptions
+
+Document Text:
 {text}
 
-Schema:
+Extract all construction items according to this schema:
 {json.dumps(schema, indent=2)}
 
-Return a JSON object matching the schema."""
+Return a JSON object with an "items" array containing all extracted items."""
         
         response = self.client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": "You are a helpful assistant that extracts structured data from text."},
+                {"role": "system", "content": "You are an expert construction document analyst specializing in extracting structured data from plumbing, mechanical, and construction PDFs. You understand construction terminology, abbreviations, and specifications."},
                 {"role": "user", "content": prompt}
             ],
             response_format={"type": "json_object"}
@@ -95,15 +114,33 @@ class ClaudeParser(LLMParserBase):
         Returns:
             Parsed data matching the schema
         """
-        prompt = f"""Extract structured data from the following text according to the provided schema.
+        prompt = f"""You are an expert at extracting structured data from construction PDF documents (plumbing submittals, mechanical plans, work packages).
 
-Text:
+Your task is to extract construction items, fixtures, and equipment with:
+- Item/Fixture Types (e.g., "Valve Package", "Circulating Pump", "Eye Wash Station", "Body Repair Shop Fixtures")
+- Quantities (can be integers like 31 or references like "31.1, 31")
+- Model Numbers / Spec References (e.g., "OM-141", "HUH-13", "30.1", "BOILER CIRCULATING PUMP")
+- Page References (if available in text)
+- Associated Dimensions (e.g., "1 1/2\"ø", "2 x 4 x 6")
+- Mounting Type (e.g., "wall-mounted", "floor-mounted")
+
+IMPORTANT INSTRUCTIONS:
+1. Extract ALL construction items, equipment, and fixtures mentioned
+2. Look for items in tables, lists, and free text
+3. Handle abbreviations (e.g., "HHWS" = Heating Hot Water Supply, "CWR" = Cooling Water Return)
+4. Extract quantities even if formatted as references (like "31.1, 31")
+5. Model numbers can be in various formats: OM-141, HUH-13, 30.1, or descriptive like "BOILER CIRCULATING PUMP"
+6. If quantity is a reference like "31.1, 31", keep it as string
+7. Be thorough - extract items from tables, notes, and descriptions
+8. Include context from surrounding text to identify complete item descriptions
+
+Document Text:
 {text}
 
-Schema:
+Extract all construction items according to this schema:
 {json.dumps(schema, indent=2)}
 
-Return a JSON object matching the schema."""
+Return a JSON object with an "items" array containing all extracted items."""
         
         message = self.client.messages.create(
             model=self.model,

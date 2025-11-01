@@ -1,7 +1,7 @@
 """
 Models specific to construction PDF extraction mode.
 """
-from typing import Optional, List
+from typing import Optional, List, Union
 from pydantic import BaseModel, Field, validator
 
 from .base import BaseExtractionResult, PageInfo
@@ -14,10 +14,9 @@ class ExtractedItem(BaseModel):
         None,
         description="Type of fixture/item (e.g., pipe, fitting, valve, sink)"
     )
-    quantity: Optional[int] = Field(
+    quantity: Optional[Union[int, str]] = Field(
         None,
-        description="Quantity of the item",
-        ge=0
+        description="Quantity of the item (can be integer or string for references like '31.1, 31')"
     )
     model_number: Optional[str] = Field(
         None,
@@ -65,6 +64,27 @@ class ExtractedItem(BaseModel):
         """Clean and normalize fixture type."""
         if v:
             return v.strip()
+        return v
+    
+    @validator('quantity', pre=True)
+    def clean_quantity(cls, v):
+        """Clean quantity - accept int or string for references."""
+        if v is None:
+            return None
+        # If it's already an int, return as is
+        if isinstance(v, int):
+            return v
+        # If it's a string, try to parse as int first
+        if isinstance(v, str):
+            v = v.strip()
+            # If it contains decimals or commas (like "31.1, 31"), keep as string
+            if '.' in v or ',' in v:
+                return v
+            # Otherwise try to convert to int
+            try:
+                return int(v)
+            except ValueError:
+                return v  # Keep as string if can't parse
         return v
     
     @validator('model_number', pre=True)
