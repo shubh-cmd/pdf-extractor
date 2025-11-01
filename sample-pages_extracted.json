@@ -1,0 +1,73 @@
+{
+  "extraction_mode": "construction_takeoff",
+  "statistics": {
+    "total_pages": 2,
+    "total_characters": 2847,
+    "total_words": 597,
+    "avg_chars_per_page": 1423.5,
+    "avg_words_per_page": 298.5
+  },
+  "total_items_found": 3,
+  "items": [
+    {
+      "fixture_type": "VALVE",
+      "quantity": null,
+      "model_number": null,
+      "dimensions": null,
+      "mounting_type": null,
+      "spec_reference": null,
+      "page_number": 2,
+      "table_number": null,
+      "row_number": null,
+      "raw_text": "VALVE",
+      "line_number": 99
+    },
+    {
+      "fixture_type": "VALVE",
+      "quantity": null,
+      "model_number": null,
+      "dimensions": null,
+      "mounting_type": null,
+      "spec_reference": null,
+      "page_number": 2,
+      "table_number": null,
+      "row_number": null,
+      "raw_text": "VALVE 1 1/2\"ø HHWS",
+      "line_number": 111
+    },
+    {
+      "fixture_type": "VALVE",
+      "quantity": null,
+      "model_number": null,
+      "dimensions": null,
+      "mounting_type": null,
+      "spec_reference": null,
+      "page_number": 2,
+      "table_number": null,
+      "row_number": null,
+      "raw_text": "VALVE PACKAGE",
+      "line_number": 135
+    }
+  ],
+  "summary": {
+    "total_items": 3,
+    "items_with_quantities": 0,
+    "items_with_model_numbers": 0,
+    "items_with_dimensions": 0,
+    "items_with_mounting_type": 0,
+    "pages_processed": 2,
+    "tables_found": 5
+  },
+  "pages": [
+    {
+      "page_num": 1,
+      "text_preview": null,
+      "has_tables": false
+    },
+    {
+      "page_num": 2,
+      "text_preview": "AA BB CC DD D.1 EE FF GG HH H.0 HH..11 JJ\n3355 3355\nEXIT PATH\nOM-140D\nPAINT BOOTH\nOM-142\n3344 3344\nBODY REPAIR\nBC 1-41\nOM-141\n3333 3333\nEXIT PATH\nOM-140C\nPAINT MIX / TOOL CRIB\nBODY SHOP\nRECYCLING STOR...",
+      "has_tables": true
+    }
+  ]
+}
