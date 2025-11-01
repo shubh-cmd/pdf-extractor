@@ -78,14 +78,39 @@ class PDFTextExtractor:
                     
                     text = page.extract_text()
                     
-                    # Extract tables if available
+                    # Extract tables if available (OPTIMIZED: only when needed)
+                    # Table extraction is VERY slow (1-2 min per page), so we skip it unless needed
                     tables = []
                     try:
-                        page_tables = page.extract_tables()
-                        if page_tables:
-                            tables = page_tables
-                    except Exception:
-                        # If table extraction fails, continue without tables
+                        # Quick heuristic: only extract tables if page has clear table indicators
+                        # This saves 1-2 minutes per page on most pages
+                        has_table_indicators = False
+                        
+                        if text:
+                            # Strong indicators: tabs (most reliable)
+                            if '\t' in text:
+                                has_table_indicators = True
+                            # Check for table border characters
+                            elif text.count('|') > 15 or text.count('│') > 8:
+                                has_table_indicators = True
+                        
+                        # Only run expensive table extraction if we have strong indicators
+                        if has_table_indicators:
+                            # Use fastest possible settings to minimize time
+                            page_tables = page.extract_tables(table_settings={
+                                "vertical_strategy": "lines_strict",  # Fastest - only existing lines
+                                "horizontal_strategy": "lines_strict",
+                                "explicit_vertical_lines": [],  # Critical: don't search for lines
+                                "explicit_horizontal_lines": [],
+                                "snap_tolerance": 5,  # Higher = faster (less precise)
+                                "join_tolerance": 5,
+                                "edge_tolerance": 5
+                            })
+                            if page_tables:
+                                tables = page_tables
+                    except Exception as e:
+                        # If table extraction fails or times out, continue without tables
+                        # Don't let table extraction block the entire process
                         pass
                     
                     pages_data.append({
